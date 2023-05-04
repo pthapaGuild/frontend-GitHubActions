@@ -25,7 +25,6 @@ jobs:
           script: |
             const githubCore = require('@actions/core');
             const prNumber = process.env.PULL_NUMBER.toString();
-            console.log(`PULL_REQUEST_NUMBER=${prNumber}`); // Output to environment file
             githubCore.setOutput('pull_request_number', prNumber);
 
   trigger_workflow:
@@ -56,15 +55,11 @@ jobs:
           repo: backend-GitHubActions
           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
           workflow_file_name: deploy.yml
-      # - name: Deploy Web App
-      #   run: |
-      #     echo "Deploy Web App"
-      #     sleep 10s
 
   run_deploy_pipeline:
-    needs: [trigger_external_test, extract_pull_request_number]
+    needs: [extract_pull_request_number, trigger_external_test]
     runs-on: ubuntu-latest
     steps:
       - name: Print Pull Request Number
         run: |
-          echo "Pull Request Number: $PULL_REQUEST_NUMBER" # Access from environment file
+          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
