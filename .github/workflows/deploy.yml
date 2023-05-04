@@ -38,7 +38,10 @@ jobs:
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
           repository: pthapaGuild/frontend-GitHubActions
           event-type: pr-input
-          client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
+          client-payload: |
+            {
+              "prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
+            }
 
   trigger_external_test:
     name: E2E Cypress Tests
@@ -55,7 +58,7 @@ jobs:
           repo: backend-GitHubActions
           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
           workflow_file_name: deploy.yml
-          workflow_input: |
+          client_payload: |
             {
               "prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
             }
