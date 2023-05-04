@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test
+        id: test_step
         uses: actions/github-script@0.3.0
         env:
           PULL_NUMBER: ${{ github.event.number }}
