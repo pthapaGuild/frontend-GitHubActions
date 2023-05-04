@@ -20,7 +20,7 @@ jobs:
             const core = require('@actions/core');
             const prNumber = process.env.PULL_NUMBER.toString();
             core.setOutput('pull_request_number', prNumber);
-            # console.log(`::set-output name=pull_request_number::${prNumber}`);
+
   trigger_workflow:
     runs-on: ubuntu-latest
     needs: [extract_pull_request_number]
