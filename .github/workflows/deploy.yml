@@ -36,7 +36,7 @@ jobs:
 
   trigger_external_test:
     name: E2E Cypress Tests
-    needs: [trigger_workflow]
+    # needs: [trigger_workflow]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Workflow and Wait
