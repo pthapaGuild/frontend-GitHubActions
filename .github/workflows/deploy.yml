@@ -8,11 +8,11 @@ jobs:
     name: Run Web App
     runs-on: ubuntu-latest
     steps:
-      - name: Check If Test Run
+      - name: Trigger Workflow and Wait
         run: |
           echo "Test is running"
           sleep 10s
-      - uses: convictional/trigger-workflow-and-wait@v1.3.0
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: pthapaGuild
           repo: backend-GitHubActions
