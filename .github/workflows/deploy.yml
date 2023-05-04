@@ -35,10 +35,10 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const core = require('@actions/core');
-            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER);
+            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString());
       - name: Print
         run: |
-          echo "Pull Request Number: ${{ needs.test_step.outputs.PULL_NUMBER }}"
+          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"
 
   trigger_workflow:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
           repository: pthapaGuild/frontend-GitHubActions
           event-type: pr-input
-          client-payload: '{"prNumber": "$PULL_NUMBER"}'
+          client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"}'
 
       - name: Set Pull Request Number
         run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
