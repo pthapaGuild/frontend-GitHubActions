@@ -65,7 +65,6 @@ on:
 jobs:
   deploy_pipeline:
     runs-on: ubuntu-latest
-    needs: [extract_pull_request_number, trigger_workflow]
     steps:
       - name: Extract Pull Request Number
         id: extract_pull_request_number
