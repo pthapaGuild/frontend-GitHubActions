@@ -6,8 +6,10 @@ on:
 jobs:
   extract_pull_request_number:
     runs-on: ubuntu-latest
+    outputs:
+      pull_request_number: ${{ steps.extract_pull_request_number.outputs.pull_request_number }}
     steps:
-      - name: Test
+      - name: Extract Pull Request Number
         id: extract_pull_request_number
         uses: actions/github-script@0.3.0
         env:
@@ -16,10 +18,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const core = require('@actions/core');
-            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString());
-      - name: Print
-        run: |
-          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"
+            const prNumber = process.env.PULL_NUMBER.toString();
+            core.setOutput('pull_request_number', prNumber);
+            console.log(`::set-output name=pull_request_number::${prNumber}`);
 
   trigger_workflow:
     runs-on: ubuntu-latest
@@ -32,10 +33,7 @@ jobs:
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
           repository: pthapaGuild/frontend-GitHubActions
           event-type: pr-input
-          client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"}'
-
-      - name: Set Pull Request Number
-        run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
+          client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
 
   trigger_external_test:
     name: Run Web App
@@ -56,3 +54,11 @@ jobs:
       #   run: |
       #     echo "Deploy Web App"
       #     sleep 10s
+
+  run_deploy_pipeline:
+    needs: [trigger_external_test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Pull Request Number
+        run: |
+          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
