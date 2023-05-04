@@ -63,11 +63,13 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  deploy_pipeline:
+  extract_pull_request_number:
     runs-on: ubuntu-latest
+    outputs:
+      PULL_NUMBER: ${{ steps.extract.outputs.PULL_NUMBER }}
     steps:
       - name: Extract Pull Request Number
-        id: extract_pull_request_number
+        id: extract
         uses: actions/github-script@0.3.0
         env:
           PULL_NUMBER: ${{ github.event.number }}
@@ -77,6 +79,12 @@ jobs:
             const core = require('@actions/core');
             core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString())
 
+  trigger_workflow:
+    runs-on: ubuntu-latest
+    needs: [extract_pull_request_number]
+    outputs:
+      PULL_NUMBER: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}
+    steps:
       - name: Dispatch Event
         id: trigger_workflow
         uses: peter-evans/repository-dispatch@v1
@@ -86,14 +94,10 @@ jobs:
           event-type: pr-input
           client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"}'
 
-      - name: Wait for Workflow and Print
-        uses: convictional/trigger-workflow-and-wait@v1.6.5
-        with:
-          owner: pthapaGuild
-          repo: backend-GitHubActions
-          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
-          workflow_file_name: deploy.yml
-
+  run_web_app:
+    runs-on: ubuntu-latest
+    needs: [trigger_workflow]
+    steps:
       - name: Run Web App
         run: |
           echo "Run Web App"
