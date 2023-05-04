@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Extract Pull Request Number
         id: extract_pull_request_number
-        uses: actions/github-script@0.3.0
+        uses: actions/github-script@2.1.0
         env:
           PULL_NUMBER: ${{ github.event.number }}
         with:
@@ -20,7 +20,7 @@ jobs:
             const core = require('@actions/core');
             const prNumber = process.env.PULL_NUMBER.toString();
             core.setOutput('pull_request_number', prNumber);
-            console.log(`::set-output name=pull_request_number::${prNumber}`);
+            # console.log(`::set-output name=pull_request_number::${prNumber}`);
 
   trigger_workflow:
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Dispatch Event
         id: dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
           repository: pthapaGuild/frontend-GitHubActions
