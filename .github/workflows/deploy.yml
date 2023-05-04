@@ -28,12 +28,13 @@ jobs:
     steps:
       - name: Test
         uses: actions/github-script@0.3.0
+        env:
+          PULL_NUMBER: ${{ github.event.number }}
         with:
-          github-token: ${{github.token}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const core = require('@actions/core')
-            const prNumber = context.payload.number;
-            core.exportVariable('PULL_NUMBER', prNumber);
+            const core = require('@actions/core');
+            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER);
 
   trigger_workflow:
     runs-on: ubuntu-latest
