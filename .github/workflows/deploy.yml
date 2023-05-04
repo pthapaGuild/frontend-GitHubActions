@@ -1,8 +1,8 @@
 name: Deploy
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize]
+
 jobs:
   build:
     name: Run Web App
@@ -22,3 +22,18 @@ jobs:
         run: |
           echo "Deploy Web App"
           sleep 10s
+
+  trigger_workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch Event
+        id: dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.E2E_CYPRESS_TESTS }}
+          repository: pthapaGuild/frontend-GitHubActions
+          event-type: pr-input
+          client-payload: '{"prNumber": "${{ github.event.pull_request.number }}"}'
+
+      - name: Set Pull Request Number
+        run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
