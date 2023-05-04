@@ -37,7 +37,7 @@ jobs:
             core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER);
       - name: Print
         run: |
-          echo "Pull Request Number: ${PULL_NUMBER}"
+          echo "Pull Request Number: $PULL_NUMBER"
 
   trigger_workflow:
     runs-on: ubuntu-latest
