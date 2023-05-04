@@ -4,25 +4,6 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  trigger_external_test:
-    name: Run Web App
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Workflow and Wait
-        run: |
-          echo "Test is running"
-          sleep 10s
-      - uses: convictional/trigger-workflow-and-wait@v1.6.5
-        with:
-          owner: pthapaGuild
-          repo: backend-GitHubActions
-          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
-          workflow_file_name: deploy.yml
-      - name: Deploy Web App
-        run: |
-          echo "Deploy Web App"
-          sleep 10s
-
   extract_pull_request_number:
     runs-on: ubuntu-latest
     steps:
@@ -55,3 +36,23 @@ jobs:
 
       - name: Set Pull Request Number
         run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
+
+  trigger_external_test:
+    name: Run Web App
+    needs: [trigger_workflow]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Workflow and Wait
+        run: |
+          echo "Test is running"
+          sleep 10s
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: pthapaGuild
+          repo: backend-GitHubActions
+          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
+          workflow_file_name: deploy.yml
+      - name: Deploy Web App
+        run: |
+          echo "Deploy Web App"
+          sleep 10s
