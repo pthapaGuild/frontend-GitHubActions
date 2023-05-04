@@ -17,9 +17,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const core = require('@actions/core');
+            const gitubCore = require('@actions/core');
             const prNumber = process.env.PULL_NUMBER.toString();
-            core.setOutput('pull_request_number', prNumber);
+            gitubCore.setOutput('pull_request_number', prNumber);
 
   trigger_workflow:
     runs-on: ubuntu-latest
