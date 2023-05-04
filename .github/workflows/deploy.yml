@@ -56,7 +56,7 @@ jobs:
       #     sleep 10s
 
   run_deploy_pipeline:
-    needs: [trigger_external_test]
+    needs: [extract_pull_request_number, trigger_external_test]
     runs-on: ubuntu-latest
     steps:
       - name: Print Pull Request Number
