@@ -42,7 +42,7 @@ jobs:
           client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
 
   trigger_external_test:
-    name: Run Web App
+    name: E2E Cypress Tests
     needs: [trigger_workflow]
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +62,7 @@ jobs:
       #     sleep 10s
 
   run_deploy_pipeline:
-    needs: [trigger_external_test]
+    needs: [trigger_external_test, extract_pull_request_number]
     runs-on: ubuntu-latest
     steps:
       - name: Print Pull Request Number
