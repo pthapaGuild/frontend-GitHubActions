@@ -1,62 +1,3 @@
-# name: Deploy
-# on:
-#   pull_request:
-#     types: [opened, synchronize]
-
-# jobs:
-#   extract_pull_request_number:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Test
-#         id: test_step
-#         uses: actions/github-script@0.3.0
-#         env:
-#           PULL_NUMBER: ${{ github.event.number }}
-#         with:
-#           github-token: ${{ secrets.GITHUB_TOKEN }}
-#           script: |
-#             const core = require('@actions/core');
-#             core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString());
-#       - name: Print
-#         run: |
-#           echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"
-
-#   trigger_workflow:
-#     runs-on: ubuntu-latest
-#     needs: [extract_pull_request_number]
-#     steps:
-#       - name: Dispatch Event
-#         id: dispatch
-#         uses: peter-evans/repository-dispatch@v1
-#         with:
-#           token: ${{ secrets.E2E_CYPRESS_TESTS }}
-#           repository: pthapaGuild/frontend-GitHubActions
-#           event-type: pr-input
-#           client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"}'
-
-#       - name: Set Pull Request Number
-#         run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
-
-#   trigger_external_test:
-#     name: Run Web App
-#     needs: [trigger_workflow]
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Trigger Workflow and Wait
-#         run: |
-#           echo "Test is running"
-#           sleep 10s
-#       - uses: convictional/trigger-workflow-and-wait@v1.6.5
-#         with:
-#           owner: pthapaGuild
-#           repo: backend-GitHubActions
-#           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
-#           workflow_file_name: deploy.yml
-#       - name: Deploy Web App
-#         run: |
-#           echo "Deploy Web App"
-#           sleep 10s
-
 name: Deploy
 on:
   pull_request:
@@ -65,11 +6,9 @@ on:
 jobs:
   extract_pull_request_number:
     runs-on: ubuntu-latest
-    outputs:
-      PULL_NUMBER: ${{ steps.extract.outputs.PULL_NUMBER }}
     steps:
-      - name: Extract Pull Request Number
-        id: extract
+      - name: Test
+        id: extract_pull_request_number
         uses: actions/github-script@0.3.0
         env:
           PULL_NUMBER: ${{ github.event.number }}
@@ -77,16 +16,17 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const core = require('@actions/core');
-            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString())
+            core.setOutput('PULL_NUMBER', process.env.PULL_NUMBER.toString());
+      - name: Print
+        run: |
+          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"
 
   trigger_workflow:
     runs-on: ubuntu-latest
     needs: [extract_pull_request_number]
-    outputs:
-      PULL_NUMBER: ${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}
     steps:
       - name: Dispatch Event
-        id: trigger_workflow
+        id: dispatch
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
@@ -94,11 +34,25 @@ jobs:
           event-type: pr-input
           client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.PULL_NUMBER }}"}'
 
-  run_web_app:
-    runs-on: ubuntu-latest
+      - name: Set Pull Request Number
+        run: echo "::set-output name=prNumber::${{ steps.dispatch.outputs.prNumber }}"
+
+  trigger_external_test:
+    name: Run Web App
     needs: [trigger_workflow]
+    runs-on: ubuntu-latest
     steps:
-      - name: Run Web App
+      - name: Trigger Workflow and Wait
         run: |
-          echo "Run Web App"
+          echo "Test is running"
           sleep 10s
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: pthapaGuild
+          repo: backend-GitHubActions
+          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
+          workflow_file_name: deploy.yml
+      # - name: Deploy Web App
+      #   run: |
+      #     echo "Deploy Web App"
+      #     sleep 10s
