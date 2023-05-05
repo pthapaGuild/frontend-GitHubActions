@@ -27,19 +27,6 @@ jobs:
             const prNumber = process.env.PULL_NUMBER.toString();
             githubCore.setOutput('pull_request_number', prNumber);
 
-  # trigger_workflow:
-  #   runs-on: ubuntu-latest
-  #   needs: [extract_pull_request_number]
-  #   steps:
-  #     - name: Dispatch Event
-  #       id: dispatch
-  #       uses: peter-evans/repository-dispatch@v2
-  #       with:
-  #         token: ${{ secrets.E2E_CYPRESS_TESTS }}
-  #         repository: pthapaGuild/frontend-GitHubActions
-  #         event-type: pr-input
-  #         client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
-
   trigger_external_test:
     name: E2E Cypress Tests
     needs: [extract_pull_request_number]
@@ -66,4 +53,4 @@ jobs:
       - name: Print Pull Request Number
         run: |
           echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
-          echo "Client Payload: ${{ toJSON(needs.trigger_external_test.outputs)}}"
+          echo "Client Payload: ${{ toJSON(needs.trigger_external_test.outputs) }}"
