@@ -50,14 +50,14 @@ jobs:
           echo "Test is running"
           sleep 1s
         env:
-          PRNUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
+          extracted_prNumber: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
       - uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: pthapaGuild
           repo: backend-GitHubActions
           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
           workflow_file_name: deploy.yml
-          client_payload: '{"prNumber": "$PRNUMBER"}'
+          client_payload: '{"prNumber": $extracted_prNumber}'
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
