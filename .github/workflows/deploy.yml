@@ -27,7 +27,7 @@ jobs:
             const prNumber = process.env.PULL_NUMBER.toString();
             githubCore.setOutput('pull_request_number', prNumber);
   send_pull_request_number:
-    name: E2E Cypress Tests
+    name: Send Pull Request Number
     needs: [extract_pull_request_number]
     runs-on: ubuntu-latest
     steps:
@@ -49,7 +49,7 @@ jobs:
             -d '{"event_type": "pr-input", "client_payload": {"prNumber": "'"$PR_NUMBER"'"}}'
 
   trigger_external_test:
-    name: E2E Cypress Tests
+    name: Trigger Cypress Tests
     needs: [send_pull_request_number]
     runs-on: ubuntu-latest
     steps:
