@@ -33,21 +33,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Workflow and Wait
+        id: trigger
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Deploy
+          repo: pthapaGuild/backend-GitHubActions
+          token: ${{ secrets.PAT }}
+          inputs: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
+          wait-for-completion: true
+          wait-for-completion-timeout: 600s
+      - name: Check Repo B Workflow Result
         run: |
-          echo "Test is running"
-          sleep 1s
-      - name: Send repository dispatch event to Repo B
-        env:
-          REPO_B_OWNER: pthapaGuild
-          REPO_B_NAME: backend-GitHubActions
-          PR_NUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
-          GITHUB_TOKEN: ${{ secrets.E2E_CYPRESS_TESTS }}
-        run: |
-          curl -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            "https://api.github.com/repos/$REPO_B_OWNER/$REPO_B_NAME/dispatches" \
-            -d '{"event_type": "pr-input", "client_payload": {"prNumber": "'"$PR_NUMBER"'"}}'
+          if [ "${{ steps.trigger.outputs.workflow-conclusion }}" != "success" ]; then
+            echo "Repo B workflow failed"
+            exit 1
+          fi
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
@@ -55,4 +55,4 @@ jobs:
     steps:
       - name: Print Pull Request Number
         run: |
-          echo "PrNumber Frontend: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
+          echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
