@@ -50,7 +50,7 @@ jobs:
           echo "Test is running"
           sleep 1s
         env:
-          extracted_prNumber: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
+          Extracted_prNumber: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
       - uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: pthapaGuild
