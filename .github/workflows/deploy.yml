@@ -65,4 +65,4 @@ jobs:
       - name: Print Pull Request Number
         run: |
           echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
-          echo "Client Payload: ${{ toJson(needs.trigger_external_test.outputs.trigger_external_test_output)}}"
+          echo "Client Payload: ${{ needs.trigger_external_test.outputs.prNumber}}"
