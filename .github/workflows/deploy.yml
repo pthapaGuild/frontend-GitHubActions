@@ -57,7 +57,7 @@ jobs:
           repo: backend-GitHubActions
           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
           workflow_file_name: deploy.yml
-          client_payload: '{"prNumber": $PRNUMBER}'
+          client_payload: '{"prNumber": "$PRNUMBER"}'
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
