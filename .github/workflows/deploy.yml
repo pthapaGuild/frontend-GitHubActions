@@ -36,13 +36,18 @@ jobs:
         run: |
           echo "Test is running"
           sleep 1s
-      - uses: convictional/trigger-workflow-and-wait@v1.6.5
-        with:
-          owner: pthapaGuild
-          repo: backend-GitHubActions
-          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
-          workflow_file_name: deploy.yml
-          client_payload: '{"pullNo": ${{ github.event.pull_request.number }}}'
+      - name: Send repository dispatch event to Repo B
+        env:
+          REPO_B_OWNER: pthapaGuild
+          REPO_B_NAME: backend-GitHubActions
+          PR_NUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
+          GITHUB_TOKEN: ${{ secrets.E2E_CYPRESS_TESTS }}
+        run: |
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            "https://api.github.com/repos/$REPO_B_OWNER/$REPO_B_NAME/dispatches" \
+            -d '{"event_type": "pr-input", "client_payload": {"prNumber": "'"$PR_NUMBER"'"}}'
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
