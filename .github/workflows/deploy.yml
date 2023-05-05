@@ -56,6 +56,7 @@ jobs:
           github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
           workflow_file_name: deploy.yml
           client-payload: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
+          id: trigger_external_test_output
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
@@ -64,4 +65,4 @@ jobs:
       - name: Print Pull Request Number
         run: |
           echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
-          echo "Client Payload: ${{needs.trigger_external_test.outputs}}"
+          echo "Client Payload: ${{ toJson(needs.trigger_external_test.outputs.trigger_external_test_output)}}"
