@@ -66,20 +66,16 @@ jobs:
             const { repo } = context;
             const { REPO_B_OWNER, REPO_B_NAME, PR_NUMBER } = process.env;
 
-            async function triggerWorkflow() {
-              const { data: dispatchedWorkflow } = await github.actions.createWorkflowDispatch({
-                owner: REPO_B_OWNER,
-                repo: REPO_B_NAME,
-                workflow_id: "deploy.yml",  # Assuming the workflow file is named "deploy.yml" in repo B
-                ref: context.payload.pull_request.head.ref,  # Use the head branch of the pull request
-                inputs: {
-                  prNumber: PR_NUMBER,
-                },
-              });
-              return dispatchedWorkflow.status;
-            }
-
-            return await triggerWorkflow();
+            return github.actions.createWorkflowDispatch({
+              owner: REPO_B_OWNER,
+              repo: REPO_B_NAME,
+              workflow_id: "deploy.yml",  # Assuming the workflow file is named "deploy.yml" in repo B
+              ref: context.payload.pull_request.head.ref,  # Use the head branch of the pull request
+              inputs: {
+                prNumber: PR_NUMBER,
+              },
+            })
+            .then(response => response.status);
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
