@@ -55,27 +55,13 @@ jobs:
     steps:
       - name: Trigger Cypress Tests And Wait
         id: trigger
-        uses: actions/github-script@v6.4.1
-        env:
-          REPO_B_OWNER: pthapaGuild
-          REPO_B_NAME: backend-GitHubActions
-          PR_NUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
-          github-token: ${{ secrets.E2E_CYPRESS_TESTS }} # Replace GITHUB_TOKEN with your Personal Access Token (PAT) that has repo scope
-          script: |
-            const { repo } = context;
-            const { REPO_B_OWNER, REPO_B_NAME, PR_NUMBER } = process.env;
-
-            return github.actions.createWorkflowDispatch({
-              owner: REPO_B_OWNER,
-              repo: REPO_B_NAME,
-              workflow_id: "deploy.yml",  # Assuming the workflow file is named "deploy.yml" in repo B
-              ref: context.payload.pull_request.head.ref,  # Use the head branch of the pull request
-              inputs: {
-                prNumber: PR_NUMBER,
-              },
-            })
-            .then(response => response.status);
+          owner: pthapaGuild
+          repo: backend-GitHubActions
+          github_token: ${{ secrets.E2E_CYPRESS_TESTS }}
+          workflow_file_name: deploy.yml
+          inputs: '{"prNumber": "${{ needs.extract_pull_request_number.outputs.pull_request_number }}"}'
 
   run_deploy_pipeline:
     needs: [extract_pull_request_number, trigger_external_test]
