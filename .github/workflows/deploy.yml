@@ -61,7 +61,6 @@ jobs:
           repo: pthapaGuild/backend-GitHubActions
           token: ${{ secrets.E2E_CYPRESS_TESTS }}
           inputs: '{"prNumber": ${{ needs.extract_pull_request_number.outputs.pull_request_number }}}'
-          wait-for-completion: true
       - name: Check Test Workflow Results
         run: |
           if [ "${{ steps.trigger.outputs.workflow-conclusion }}" != "success" ]; then
