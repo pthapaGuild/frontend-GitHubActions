@@ -61,7 +61,7 @@ jobs:
           REPO_B_NAME: backend-GitHubActions
           PR_NUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
         with:
-          github-token: ${{ secrets.PAT }} # Replace GITHUB_TOKEN with your Personal Access Token (PAT) that has repo scope
+          github-token: ${{ secrets.E2E_CYPRESS_TESTS }} # Replace GITHUB_TOKEN with your Personal Access Token (PAT) that has repo scope
           script: |
             const { repo } = context;
             const { REPO_B_OWNER, REPO_B_NAME, PR_NUMBER } = process.env;
