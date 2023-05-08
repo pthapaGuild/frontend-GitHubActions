@@ -26,27 +26,6 @@ jobs:
             const githubCore = require('@actions/core');
             const prNumber = process.env.PULL_NUMBER.toString();
             githubCore.setOutput('pull_request_number', prNumber);
-  # send_pull_request_number:
-  #   name: Send Pull Request Number
-  #   needs: [extract_pull_request_number]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Send Pull Request Number
-  #       run: |
-  #         echo "Test is running"
-  #         sleep 1s
-  #     - name: Send repository dispatch event to Repo B
-  #       env:
-  #         REPO_B_OWNER: pthapaGuild
-  #         REPO_B_NAME: backend-GitHubActions
-  #         PR_NUMBER: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}
-  #         GITHUB_TOKEN: ${{ secrets.E2E_CYPRESS_TESTS }}
-  #       run: |
-  #         curl -X POST \
-  #           -H "Authorization: token $GITHUB_TOKEN" \
-  #           -H "Accept: application/vnd.github.everest-preview+json" \
-  #           "https://api.github.com/repos/$REPO_B_OWNER/$REPO_B_NAME/dispatches" \
-  #           -d '{"event_type": "pr-input", "client_payload": {"prNumber": "'"$PR_NUMBER"'"}}'
 
   trigger_external_test:
     name: Trigger Cypress Tests
