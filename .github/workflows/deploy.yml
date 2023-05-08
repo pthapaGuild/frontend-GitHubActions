@@ -49,3 +49,4 @@ jobs:
       - name: Print Pull Request Number
         run: |
           echo "Pull Request Number: ${{ needs.extract_pull_request_number.outputs.pull_request_number }}"
+          echo "Pr NumberWithout Extraction: ${{ github.event.pull_request.number }}"
