@@ -5,7 +5,18 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  build-cypress-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
+    outputs:
+      specs: ${{ steps.set-matrix.outputs.specs }}
+
   build-matrix:
+    needs: [build-cypress-matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,6 +30,8 @@ jobs:
             },
           ]
         browser: [chrome]
+        specs: ${{ fromJson(needs.build-cypress-matrix.outputs.specs) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,3 +40,4 @@ jobs:
         with:
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
+          specs: ${{ matrix.specs }}

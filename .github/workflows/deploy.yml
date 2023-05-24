@@ -1,7 +1,8 @@
 name: Deploy
 on:
-  pull_request:
-    types: [opened, synchronize]
+  workflow_dispatch:
+  # pull_request:
+  #   types: [opened, synchronize]
 
 jobs:
   extract_pull_request_number:
