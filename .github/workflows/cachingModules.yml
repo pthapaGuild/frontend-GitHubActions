@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Sample Cypress Tests
-        uses: cypress-io/github-actions@v5
+        uses: cypress-io/github-action@v5
         with:
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
