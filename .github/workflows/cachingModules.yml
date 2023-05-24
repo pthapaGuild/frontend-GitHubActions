@@ -1,0 +1,29 @@
+name: Cache Node Modules
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 64
+      matrix:
+        config:
+          [
+            {
+              type: 'desktop',
+              config: 'viewportWidth=1920,viewportHeight=1080',
+            },
+          ]
+        browser: [chrome]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Sample Cypress Tests
+        uses: cypress-io/github-actions@v5
+        with:
+          browser: ${{ matrix.browser }}
+          config: ${{ matrix.config.config }}
