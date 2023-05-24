@@ -14,11 +14,11 @@
     "resolveJsonModule": true,
     "types": [
       "node",
-      "cypress",
-      "cypress-real-events",
-      "@testing-library/cypress",
-      "cypress-axe",
-      "@guildeducationinc/guild-cypress-axe"
+      "cypress"
+      // "cypress-real-events",
+      // "@testing-library/cypress",
+      // "cypress-axe"
+      // "@guildeducationinc/guild-cypress-axe"
     ]
   },
   "include": ["**/*.ts", "**/*.js"],
