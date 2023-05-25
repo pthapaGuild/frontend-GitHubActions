@@ -1,6 +1,7 @@
 name: Cache Node Modules
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [opened, synchronize]
 
