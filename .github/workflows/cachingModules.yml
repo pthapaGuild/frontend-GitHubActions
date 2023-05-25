@@ -61,6 +61,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+      - name: Install Dependencies
+        run: yarn install --fronzen-lockfile
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
         with:
