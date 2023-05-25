@@ -1,36 +1,119 @@
-name: Cache Node Modules
+# name: Cache Node Modules
 
-# This makes workflows for PRs with the specified key run only one at a time. This prevents race conditions with this
-# workflow running and the pr-close teardown workflow running.
-concurrency: pr-build-${{ github.event.pull_request.number }}
+# # This makes workflows for PRs with the specified key run only one at a time. This prevents race conditions with this
+# # workflow running and the pr-close teardown workflow running.
+# concurrency: pr-build-${{ github.event.pull_request.number }}
+
+# on:
+#   workflow_dispatch:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+
+# jobs:
+#   build-cypress-matrix:
+#     runs-on: ubuntu-20.04
+#     container: node:18
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Cache node modules
+#         uses: actions/cache@v3
+#         env:
+#           cache-name: cache-node-modules
+#           cache-version: pr-build
+#         with:
+#           path: |
+#             node_modules
+#             ./src/analytics
+#             ~/.cache/Cypress
+#           key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+#       - name: yarn install
+#         run: yarn --frozen-lockfile --network-timeout 120000
+
+#       - id: set-matrix
+#         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
+#     outputs:
+#       specs: ${{ steps.set-matrix.outputs.specs }}
+
+#   build-matrix:
+#     needs: [build-cypress-matrix]
+#     runs-on: ubuntu-20.04
+#     container: cypress/browsers:node18.12.0-chrome107
+#     strategy:
+#       fail-fast: false
+#       max-parallel: 64
+#       matrix:
+#         config:
+#           [
+#             {
+#               type: 'desktop',
+#               config: 'viewportWidth=1920,viewportHeight=1080',
+#             },
+#           ]
+#         browser: [chrome]
+#         specs: ${{ fromJson(needs.build-cypress-matrix.outputs.specs) }}
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
+
+#       - name: Cache node modules
+#         uses: actions/cache@v3
+#         env:
+#           cache-name: cache-node-modules
+#           cache-version: pr-build
+#         with:
+#           path: |
+#             node_modules
+#             ~/.cache/Cypress
+#           key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+#       - name: yarn install
+#         run: yarn --frozen-lockfile --network-timeout 120000
+
+#       - name: Sample Cypress Tests
+#         uses: cypress-io/github-action@v5
+#         with:
+#           install: false
+#           browser: ${{ matrix.browser }}
+#           config: ${{ matrix.config.config }}
+#           spec: ${{ matrix.specs }}
+name: Cache Node Modules
 
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
   build-cypress-matrix:
-    runs-on: ubuntu-20.04
-    container: node:18
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Cache node modules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-          cache-version: pr-build
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          path: |
-            node_modules
-            ./src/analytics
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          node-version: '16'
+          cache: 'yarn'
 
-      - name: yarn install
-        run: yarn --frozen-lockfile --network-timeout 120000
+      - name: Install Dependencies
+        run: yarn --prefer-offline
+
+      - name: Install Cypress Binary
+        run: npx cypress install
+
+      - name: Archive node_modules and Cypress
+        run: tar -czf dependencies.tar.gz node_modules .cache/Cypress
+
+      - name: Upload node_modules and Cypress
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependencies
+          path: dependencies.tar.gz
 
       - id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
@@ -39,8 +122,7 @@ jobs:
 
   build-matrix:
     needs: [build-cypress-matrix]
-    runs-on: ubuntu-20.04
-    container: cypress/browsers:node18.12.0-chrome107
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       max-parallel: 64
@@ -59,19 +141,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache node modules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-          cache-version: pr-build
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          path: |
-            node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          node-version: '16'
+          cache: 'yarn'
 
-      - name: yarn install
-        run: yarn --frozen-lockfile --network-timeout 120000
+      - name: Download node_modules and Cypress
+        uses: actions/download-artifact@v3
+        with:
+          name: dependencies
+
+      - name: Extract node_modules and Cypress
+        run: tar -xzf dependencies.tar.gz
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
@@ -79,4 +161,4 @@ jobs:
           install: false
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
-          specs: ${{ matrix.specs }}
+          spec: ${{ matrix.specs }}
