@@ -64,6 +64,7 @@ jobs:
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
         with:
+          install: false
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
           specs: ${{ matrix.specs }}
