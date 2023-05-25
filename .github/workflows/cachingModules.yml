@@ -97,23 +97,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          # node-version: '16'
           cache: 'yarn'
 
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      # - name: Install Cypress Binary
-      #   run: npx cypress install
+      - name: Archive node_modules
+        run: tar -czf node_modules.tar.gz node_modules
 
-      - name: Archive node_modules and Cypress
-        run: tar -czf dependencies.tar.gz node_modules .cache/Cypress
-
-      - name: Upload node_modules and Cypress
+      - name: Upload node_modules
         uses: actions/upload-artifact@v3
         with:
-          name: dependencies
-          path: dependencies.tar.gz
+          name: node_modules
+          path: node_modules.tar.gz
 
       - id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
@@ -144,16 +141,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          # node-version: '16'
           cache: 'yarn'
 
-      - name: Download node_modules and Cypress
+      - name: Download node_modules
         uses: actions/download-artifact@v3
         with:
-          name: dependencies
+          name: node_modules
 
-      - name: Extract node_modules and Cypress
-        run: tar -xzf dependencies.tar.gz
+      - name: Extract node_modules
+        run: tar -xzf node_modules.tar.gz
+
+      - name: Install Cypress Binary
+        run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
