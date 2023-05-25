@@ -25,7 +25,7 @@ jobs:
         run: npx cypress install
 
       - name: Archive node_modules and Cypress binary
-        run: tar -czf node_modules.tar.gz node_modules .cache/Cypress
+        run: tar -czf node_modules.tar.gz node_modules node_modules/.cache/Cypress
 
       - name: Upload node_modules and Cypress binary
         uses: actions/upload-artifact@v2
