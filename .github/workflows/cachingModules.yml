@@ -21,13 +21,16 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      - name: Archive node_modules
-        run: tar -czf node_modules.tar.gz node_modules
+      - name: Install Cypress Binary
+        run: npx cypress install
 
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v3
+      - name: Archive node_modules and Cypress binary
+        run: tar -czf node_modules.tar.gz node_modules .cache/Cypress
+
+      - name: Upload node_modules and Cypress binary
+        uses: actions/upload-artifact@v2
         with:
-          name: node_modules
+          name: node_modules_and_cypress_binary
           path: node_modules.tar.gz
 
       - id: set-matrix
@@ -62,16 +65,13 @@ jobs:
           node-version: '16'
           cache: 'yarn'
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v3
+      - name: Download node_modules and Cypress binary
+        uses: actions/download-artifact@v2
         with:
-          name: node_modules
+          name: node_modules_and_cypress_binary
 
-      - name: Extract node_modules
+      - name: Extract node_modules and Cypress binary
         run: tar -xzf node_modules.tar.gz
-
-      - name: Install Cypress Binary
-        run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
