@@ -70,6 +70,9 @@ jobs:
       - name: Extract node_modules
         run: tar -xzf node_modules.tar.gz
 
+      - name: Install Cypress Binary
+        run: npx cypress install
+
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
         with:
