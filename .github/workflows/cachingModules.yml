@@ -1,29 +1,46 @@
 name: Cache Node Modules
 
+# This makes workflows for PRs with the specified key run only one at a time. This prevents race conditions with this
+# workflow running and the pr-close teardown workflow running.
+concurrency: pr-build-${{ github.event.pull_request.number }}
+
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-cypress-matrix:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    container: node:18
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node and cache dependencies
-        uses: bahmutov/npm-install@v1
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+          cache-version: pr-build
+        with:
+          path: |
+            node_modules
+            ./src/analytics
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: yarn install
+        run: yarn --frozen-lockfile --network-timeout 120000
 
       - id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
-
     outputs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
   build-matrix:
     needs: [build-cypress-matrix]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    container: node:18
     strategy:
       fail-fast: false
       max-parallel: 64
@@ -42,12 +59,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node and cache dependencies
-        uses: bahmutov/npm-install@v1
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+          cache-version: pr-build
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: yarn install
+        run: yarn --frozen-lockfile --network-timeout 120000
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
         with:
+          install: false
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
           specs: ${{ matrix.specs }}
