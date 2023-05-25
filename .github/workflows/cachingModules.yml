@@ -103,8 +103,8 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      - name: Install Cypress Binary
-        run: npx cypress install
+      # - name: Install Cypress Binary
+      #   run: npx cypress install
 
       - name: Archive node_modules and Cypress
         run: tar -czf dependencies.tar.gz node_modules .cache/Cypress
