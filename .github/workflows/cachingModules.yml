@@ -42,7 +42,7 @@ jobs:
     outputs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
-  build-matrix:
+  sample-tests:
     needs: [install-and-cache-dependencies]
     runs-on: ubuntu-latest
     strategy:
@@ -84,8 +84,8 @@ jobs:
       # - name: Extract node_modules
       #   run: tar -xzf node_modules.tar.gz
 
-      - name: Install Cypress Binary
-        run: npx cypress install
+      # - name: Install Cypress Binary
+      #   run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
