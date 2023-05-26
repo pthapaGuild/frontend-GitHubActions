@@ -21,8 +21,8 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      # - name: Install Cypress Binary
-      #   run: yarn add cypress
+      - name: Install Cypress Binary
+        run: yarn add cypress
 
       - name: Cache Dependencies
         uses: actions/cache@v3
