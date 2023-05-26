@@ -19,7 +19,7 @@ jobs:
       #     cache: 'yarn'
 
       - name: Install Dependencies
-        run: yarn --prefer-offline && yarn add cypress
+        run: yarn --prefer-offline && npx cypress install
 
       - name: Archive node_modules
         run: tar -czf node_modules.tar.gz node_modules
