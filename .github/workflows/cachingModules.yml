@@ -13,13 +13,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     cache: 'yarn'
-
       - name: Install Dependencies
-        run: yarn --prefer-offline && npx cypress install
+        run: yarn --prefer-offline && yarn cypress install
 
       - name: Archive node_modules
         run: tar -czf node_modules.tar.gz node_modules
