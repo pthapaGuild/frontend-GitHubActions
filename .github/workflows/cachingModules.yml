@@ -32,6 +32,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Archive Dependencies
+        run: tar -czf dependencies.tar.gz node_modules .cache
+
+      - name: Upload Dependencies
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependencies
+          path: dependencies.tar.gz
+
       - name: Generate Cypress Specs for Parallel Run
         id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
@@ -66,7 +75,16 @@ jobs:
           path: |
             node_modules
             ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Download Dependencies
+        uses: actions/download-artifact@v2
+        with:
+          name: dependencies
+
+      - name: Extract Dependencies
+        run: tar -xzf dependencies.tar.gz
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
