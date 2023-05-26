@@ -21,8 +21,8 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      - name: Install Cypress Binary
-        run: npx cypress install
+      # - name: Install Cypress Binary
+      #   run: npx cypress install
 
       - name: Cache Dependencies
         uses: actions/cache@v3
@@ -30,9 +30,10 @@ jobs:
           path: |
             node_modules
             ~/.cache/Cypress
-          key: ${{ runner.os }}-dependencies-${{ hashFiles('**/yarn.lock') }}
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-dependencies-
+            ${{ runner.os }}-yarn-
 
       - name: Generate Cypress Specs for Parallel Run
         id: set-matrix
