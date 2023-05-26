@@ -16,7 +16,7 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline && yarn cypress install
 
-      - name: Archive node_modules & Cypress Cache
+      - name: Archive node_modules
         run: tar -czf node_modules.tar.gz node_modules
 
       - name: Upload node_modules
