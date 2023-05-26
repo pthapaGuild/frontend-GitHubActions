@@ -22,7 +22,7 @@ jobs:
         run: yarn --prefer-offline
 
       # - name: Install Cypress Binary
-      #   run: npx cypress install
+      #   run: yarn add cypress
 
       - name: Cache Dependencies
         uses: actions/cache@v3
@@ -74,6 +74,7 @@ jobs:
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
         with:
+          start: yarn cypress run
           install: false
           browser: ${{ matrix.browser }}
           config: ${{ matrix.config.config }}
