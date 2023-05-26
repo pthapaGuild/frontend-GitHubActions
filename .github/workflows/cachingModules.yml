@@ -19,7 +19,7 @@ jobs:
       #     cache: 'yarn'
 
       - name: Install Dependencies
-        run: yarn --prefer-offline
+        run: yarn --prefer-offline && yarn add cypress
 
       - name: Archive node_modules
         run: tar -czf node_modules.tar.gz node_modules
@@ -66,8 +66,8 @@ jobs:
       - name: Extract node_modules
         run: tar -xzf node_modules.tar.gz
 
-      - name: Install Cypress Binary
-        run: npx cypress install
+      # - name: Install Cypress Binary
+      #   run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
