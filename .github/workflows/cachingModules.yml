@@ -28,6 +28,8 @@ jobs:
             node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Generate Cypress Specs for Parallel Run
         id: set-matrix
@@ -64,6 +66,9 @@ jobs:
             node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install Cypress Binary
+        run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
