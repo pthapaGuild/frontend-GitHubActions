@@ -5,3 +5,4 @@
 - Testing `Repo Dispatch`.
 - Testing Caching node Modules.
 - Deploy.yml workflow file contains information on how to trigger external repo and transfer pull request number.
+- Caching Modules manually caches node modules before being used by another workflow jobs.
