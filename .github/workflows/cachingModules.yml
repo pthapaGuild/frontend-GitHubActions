@@ -1,0 +1,74 @@
+name: Cache Node Modules
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  install-and-cache-dependencies:
+    name: Install and Cache Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn --prefer-offline
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Generate Cypress Specs for Parallel Run
+        id: set-matrix
+        run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
+    outputs:
+      specs: ${{ steps.set-matrix.outputs.specs }}
+
+  sample-tests:
+    name: Cypress Tests
+    needs: [install-and-cache-dependencies]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 64
+      matrix:
+        config:
+          [
+            {
+              type: 'desktop',
+              config: 'viewportWidth=1920,viewportHeight=1080',
+            },
+          ]
+        browser: [chrome]
+        specs: ${{ fromJson(needs.install-and-cache-dependencies.outputs.specs) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Sample Cypress Tests
+        uses: cypress-io/github-action@v5
+        with:
+          install: false
+          browser: ${{ matrix.browser }}
+          config: ${{ matrix.config.config }}
+          spec: ${{ matrix.specs }}
