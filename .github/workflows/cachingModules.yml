@@ -28,15 +28,6 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      # - name: Archive node_modules
-      #   run: tar -czf node_modules.tar.gz node_modules
-
-      # - name: Upload node_modules
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: node_modules
-      #     path: node_modules.tar.gz
-
       - id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
     outputs:
@@ -63,29 +54,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     cache: 'yarn'
-
-      - name: Cache dependencies
+      - name: Get Dependencies
         uses: actions/cache@v3
         with:
           path: |
             node_modules
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-
-      # - name: Download node_modules
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: node_modules
-
-      # - name: Extract node_modules
-      #   run: tar -xzf node_modules.tar.gz
-
-      # - name: Install Cypress Binary
-      #   run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
