@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  build-cypress-matrix:
+  install-and-cache-dependencies:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -43,7 +43,7 @@ jobs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
   build-matrix:
-    needs: [build-cypress-matrix]
+    needs: [install-and-cache-dependencies]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -57,7 +57,7 @@ jobs:
             },
           ]
         browser: [chrome]
-        specs: ${{ fromJson(needs.build-cypress-matrix.outputs.specs) }}
+        specs: ${{ fromJson(needs.install-and-cache-dependencies.outputs.specs) }}
 
     steps:
       - name: Checkout
