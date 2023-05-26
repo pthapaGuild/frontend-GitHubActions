@@ -7,7 +7,7 @@ on:
 
 jobs:
   install-and-cache-dependencies:
-    name: Install and Cache Dependencies
+    name: Install and Cache Dependencies.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,21 +21,22 @@ jobs:
       - name: Install Dependencies
         run: yarn --prefer-offline
 
-      - name: Cache Dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Archive node_modules
+        run: tar -czf node_modules.tar.gz node_modules
 
-      - name: Generate Cypress Specs for Parallel Run
+      - name: Upload node_modules
+        uses: actions/upload-artifact@v3
+        with:
+          name: node_modules
+          path: node_modules.tar.gz
+
+      - name: Generate Cypress Specs Matrix
         id: set-matrix
         run: echo "specs=$(node cypress/support/locateSpecs.js)" >> $GITHUB_OUTPUT
     outputs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
-  sample-tests:
+  build-matrix:
     name: Cypress Tests
     needs: [install-and-cache-dependencies]
     runs-on: ubuntu-latest
@@ -57,13 +58,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Get Dependencies
-        uses: actions/cache@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          path: |
-            node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          cache: 'yarn'
+
+      - name: Download node_modules
+        uses: actions/download-artifact@v3
+        with:
+          name: node_modules
+
+      - name: Extract node_modules
+        run: tar -xzf node_modules.tar.gz
+
+      - name: Install Cypress Binary
+        run: npx cypress install
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
