@@ -1,4 +1,4 @@
-name: Cache Node Modules # Using artifact upload and downloading them as needed.
+name: Cache Node Modules # Using actions/cache@v3. Instead of using tar command to zip, upload using artifact and then download in each one.
 
 on:
   workflow_dispatch:
@@ -34,7 +34,7 @@ jobs:
     outputs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
-  build-matrix:
+  run-matrix:
     name: Cypress Tests
     needs: [install-and-cache-dependencies]
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Node Modules
+      - name: Re-store Node Modules
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
