@@ -24,7 +24,7 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
@@ -67,7 +67,7 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
