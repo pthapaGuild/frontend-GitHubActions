@@ -1,9 +1,9 @@
-name: Cache Node Modules # Using artifact upload and downloading them as needed.
+name: Cache Node Modules # Using actions/cache@v3. Instead of using tar command to zip, upload using artifact and then download in each one.
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   types: [opened, synchronize]
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   install-and-cache-dependencies:
@@ -13,17 +13,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Dependencies
-        run: yarn --prefer-offline
-
-      - name: Archive node_modules
-        run: tar -czf node_modules.tar.gz node_modules
-
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v3
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+          cache-version: pr-build
         with:
-          name: node_modules
-          path: node_modules.tar.gz
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
 
       - name: Generate Cypress Specs Matrix
         id: set-matrix
@@ -31,7 +34,7 @@ jobs:
     outputs:
       specs: ${{ steps.set-matrix.outputs.specs }}
 
-  build-matrix:
+  run-matrix:
     name: Cypress Tests
     needs: [install-and-cache-dependencies]
     runs-on: ubuntu-latest
@@ -53,16 +56,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Download node_modules
-        uses: actions/download-artifact@v3
+      - name: Re-store Node Modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+          cache-version: pr-build
         with:
-          name: node_modules
-
-      - name: Extract node_modules
-        run: tar -xzf node_modules.tar.gz
-
-      - name: Install Cypress Binary
-        run: npx cypress install
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.cache-version }}-${{ env.cache-name }}
 
       - name: Sample Cypress Tests
         uses: cypress-io/github-action@v5
